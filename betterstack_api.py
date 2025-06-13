@@ -5,20 +5,26 @@ from config import BETTERSTACK_API_KEY
 def get_incident_file(provider_name):
     return f"incident_{provider_name}.txt"
 
-def create_incident(provider_name, title, body):
+def create_incident(provider_name, title, description, component_id=None):
     url = "https://betteruptime.com/api/v2/incidents"
     headers = {
         "Authorization": f"Bearer {BETTERSTACK_API_KEY}",
         "Content-Type": "application/json"
-  {
-  "title": "Incident title",
-  "description": "Details about the incident",
-  "component_id": "component-uuid",
-  "status": "investigating"
     }
 
+    # Build data payload
+    data = {
+        "title": title,
+        "description": description,
+        "status": "investigating"
     }
+
+    # Include component_id if provided
+    if component_id:
+        data["component_id"] = component_id
+
     response = requests.post(url, headers=headers, json=data)
+
     if response.status_code == 201:
         incident_id = response.json()['id']
         with open(get_incident_file(provider_name), 'w') as f:
@@ -33,6 +39,7 @@ def resolve_incident(provider_name):
         return
     with open(incident_file, 'r') as f:
         incident_id = f.read().strip()
+
     url = f"https://betteruptime.com/api/v2/incidents/{incident_id}/resolve"
     headers = {
         "Authorization": f"Bearer {BETTERSTACK_API_KEY}",
