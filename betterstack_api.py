@@ -10,13 +10,13 @@ def create_incident(provider_name, title, body):
     headers = {
         "Authorization": f"Bearer {BETTERSTACK_API_KEY}",
         "Content-Type": "application/json"
+  {
+  "title": "Incident title",
+  "description": "Details about the incident",
+  "component_id": "component-uuid",
+  "status": "investigating"
     }
-    data = {
-        "incident": {
-            "name": title,
-            "status": "investigating",
-            "body": body
-        }
+
     }
     response = requests.post(url, headers=headers, json=data)
     if response.status_code == 201:
