@@ -5,28 +5,23 @@ from config import BETTERSTACK_API_KEY
 def get_incident_file(provider_name):
     return f"incident_{provider_name}.txt"
 
-def create_incident(provider_name, title, description, component_id=None):
-    url = "https://betteruptime.com/api/v2/incidents"
+def create_incident(provider_name, title, description):
+    url = "https://uptime.betterstack.com/api/v1/incidents"
     headers = {
         "Authorization": f"Bearer {BETTERSTACK_API_KEY}",
         "Content-Type": "application/json"
     }
 
-    # Build data payload
     data = {
         "title": title,
         "description": description,
         "status": "investigating"
+        # Add other fields here if needed, check API docs
     }
 
-    # Include component_id if provided
-    if component_id:
-        data["component_id"] = component_id
-
     response = requests.post(url, headers=headers, json=data)
-
     if response.status_code == 201:
-        incident_id = response.json()['id']
+        incident_id = response.json().get('id')
         with open(get_incident_file(provider_name), 'w') as f:
             f.write(incident_id)
         print(f"[{provider_name}] Incident created: {incident_id}")
@@ -40,11 +35,12 @@ def resolve_incident(provider_name):
     with open(incident_file, 'r') as f:
         incident_id = f.read().strip()
 
-    url = f"https://betteruptime.com/api/v2/incidents/{incident_id}/resolve"
+    url = f"https://uptime.betterstack.com/api/v1/incidents/{incident_id}/resolve"
     headers = {
         "Authorization": f"Bearer {BETTERSTACK_API_KEY}",
         "Content-Type": "application/json"
     }
+
     response = requests.patch(url, headers=headers)
     if response.status_code == 200:
         os.remove(incident_file)
